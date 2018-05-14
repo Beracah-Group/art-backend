@@ -167,3 +167,8 @@ class AssetModelNumberSerializer(serializers.ModelSerializer):
             'make_label': make_label_instance
         })
         return internal_value
+class AssetMakeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssetMake
+        fields = ("id", "make_label", "asset_type",
+                  "created_at", "last_modified_at")
