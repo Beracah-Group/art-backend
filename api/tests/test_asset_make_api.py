@@ -79,16 +79,16 @@ class AssetMakeAPICase(TestCase):
     @patch('api.authentication.auth.verify_id_token')
     def test_asset_make_endpoint_post_valid_data(self, mock_verify_id_token):
         mock_verify_id_token.return_value = {'email': self.user.email}
-        initial_asset_types = len(AssetMake.objects.all())
+        initial_asset_makes = len(AssetMake.objects.all())
         response = client.post(
             self.asset_make_urls,
             data=self.second_asset_make,
             HTTP_AUTHORIZATION="Token {}".format(self.token_user)
         )
-        latest_asset_types = AssetMake.objects.all()
+        latest_asset_makes = AssetMake.objects.all()
         self.assertEqual(response.status_code, 201)
         response_data = response.data
-        self.assertEqual(len(latest_asset_types), initial_asset_types + 1)
+        self.assertEqual(len(latest_asset_makes), initial_asset_makes + 1)
         self.assertIn(self.second_asset_make["make_label"],
                       response_data.values())
 
