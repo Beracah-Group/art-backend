@@ -178,12 +178,6 @@ class AssetMakeSerializer(serializers.ModelSerializer):
     def get_asset_type(self, obj):
         return obj.asset_type.asset_type
 
-    def validate_make_label(self, value):
-        if not value[0].isalpha():
-            raise serializers.ValidationError("make label should only start "
-                                              "with alphabet")
-        return value
-
     def to_internal_value(self, data):
         asset_type = data["asset_type"]
         if not asset_type:

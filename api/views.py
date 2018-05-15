@@ -135,5 +135,5 @@ class AssetMakeViewSet(ModelViewSet):
     serializer_class = AssetMakeSerializer
     queryset = AssetMake.objects.all()
     permission_classes = [IsAuthenticated, ]
-    authentication_classes = [FirebaseTokenAuthentication]
+    authentication_classes = [FirebaseTokenAuthentication, ]
     http_method_names = ['get', 'post']
