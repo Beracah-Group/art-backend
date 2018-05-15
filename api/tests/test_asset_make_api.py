@@ -40,6 +40,10 @@ class AssetMakeAPICase(TestCase):
             "make_label": "HP Envy",
             "asset_type": self.asset_type.id
         }
+
+        self.invalid_asset_type = 500
+        self.invalid_asset_make = '       '
+        self.blank_asset_type = ""
         self.asset_make.save()
         self.asset_make_urls = reverse('asset-makes-list')
 
@@ -65,16 +69,63 @@ class AssetMakeAPICase(TestCase):
         mock_verify_id_token.return_value = {'email': self.user.email}
         response = client.post(
             self.asset_make_urls,
-            data={
-            },
+            data={"make_label": self.invalid_asset_make,
+                  "asset_type": self.asset_type.id
+                  },
             HTTP_AUTHORIZATION="Token {}".format(self.token_user)
         )
         response_data = response.data
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response_data["make_label"],
-                         ['This field is required.'])
+                         ['This field may not be blank.'])
+
+    @patch('api.authentication.auth.verify_id_token')
+    def test_asset_make_endpoint_post_invalid_asset_type(self,
+                                                         mock_verify_id_token):
+        mock_verify_id_token.return_value = {'email': self.user.email}
+        response = client.post(
+            self.asset_make_urls,
+            data={"make_label": "Huawei Honor",
+                  "asset_type": self.invalid_asset_type
+                  },
+            HTTP_AUTHORIZATION="Token {}".format(self.token_user)
+        )
+        response_data = response.data
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_data["asset_type"],
+                         ['Invalid pk "{0}" - object does not exist.'
+                         .format(self.invalid_asset_type)])
+
+    @patch('api.authentication.auth.verify_id_token')
+    def test_asset_make_endpoint_post_blank_asset_type(self,
+                                                       mock_verify_id_token):
+        mock_verify_id_token.return_value = {'email': self.user.email}
+        response = client.post(
+            self.asset_make_urls,
+            data={"make_label": "Huawei Honor",
+                  "asset_type": self.blank_asset_type
+                  },
+            HTTP_AUTHORIZATION="Token {}".format(self.token_user)
+        )
+        response_data = response.data
+        self.assertEqual(response.status_code, 400)
         self.assertEqual(response_data["asset_type"],
                          ['This field is required.'])
+
+    @patch('api.authentication.auth.verify_id_token')
+    def test_asset_make_endpoint_post_invalid_make(self, mock_verify_id_token):
+        mock_verify_id_token.return_value = {'email': self.user.email}
+        response = client.post(
+            self.asset_make_urls,
+            data={"make_label": "2383Honor",
+                  "asset_type": self.asset_type.id
+                  },
+            HTTP_AUTHORIZATION="Token {}".format(self.token_user)
+        )
+        response_data = response.data
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_data["make_label"],
+                         ["make label should only start with alphabet"])
 
     @patch('api.authentication.auth.verify_id_token')
     def test_asset_make_endpoint_post_valid_data(self, mock_verify_id_token):
@@ -115,7 +166,7 @@ class AssetMakeAPICase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     @patch('api.authentication.auth.verify_id_token')
-    def test_asset_type_api_endpoint_cant_allow_put(self,
+    def test_asset_make_api_endpoint_cant_allow_put(self,
                                                     mock_verify_id_token):
         mock_verify_id_token.return_value = {'email': self.user.email}
         data = {}
@@ -129,7 +180,7 @@ class AssetMakeAPICase(TestCase):
         self.assertEqual(response.status_code, 405)
 
     @patch('api.authentication.auth.verify_id_token')
-    def test_asset_type_api_endpoint_cant_allow_patch(self,
+    def test_asset_make_api_endpoint_cant_allow_patch(self,
                                                       mock_verify_id_token):
         mock_verify_id_token.return_value = {'email': self.user.email}
         data = {}
@@ -143,7 +194,7 @@ class AssetMakeAPICase(TestCase):
         self.assertEqual(response.status_code, 405)
 
     @patch('api.authentication.auth.verify_id_token')
-    def test_asset_type_api_endpoint_cant_allow_delete(self,
+    def test_asset_make_api_endpoint_cant_allow_delete(self,
                                                        mock_verify_id_token):
         mock_verify_id_token.return_value = {'email': self.user.email}
         data = {}
