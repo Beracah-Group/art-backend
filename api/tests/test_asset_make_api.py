@@ -27,23 +27,23 @@ class AssetMakeAPICase(TestCase):
         )
         self.token_other_user = 'otherusertesttoken'
         self.asset_category = AssetCategory.objects.create(
-            category_name="Electronics")
+            category_name='Electronics')
         self.asset_sub_category = AssetSubCategory.objects.create(
-            sub_category_name="Computer",
+            sub_category_name='Computer',
             asset_category=self.asset_category)
         self.asset_type = AssetType.objects.create(
-            asset_type="Laptop",
+            asset_type='Laptop',
             asset_sub_category=self.asset_sub_category)
         self.asset_make = AssetMake.objects.create(
-            make_label="MacBook Pro", asset_type=self.asset_type)
+            make_label='MacBook Pro', asset_type=self.asset_type)
         self.second_asset_make = {
-            "make_label": "HP Envy",
-            "asset_type": self.asset_type.id
+            'make_label': 'HP Envy',
+            'asset_type': self.asset_type.id
         }
 
         self.invalid_asset_type = 500
         self.invalid_asset_make = '       '
-        self.blank_asset_type = ""
+        self.blank_asset_type = ''
         self.asset_make.save()
         self.asset_make_urls = reverse('asset-makes-list')
 
@@ -52,13 +52,14 @@ class AssetMakeAPICase(TestCase):
         self.assertEqual(response.data, {
             'detail': 'Authentication credentials were not provided.'
         })
+        self.assertEqual(response.status_code, 401)
 
     @patch('api.authentication.auth.verify_id_token')
     def test_authenticated_user_view_assets_make(self, mock_verify_id_token):
         mock_verify_id_token.return_value = {'email': self.other_user.email}
         response = client.get(
             self.asset_make_urls,
-            HTTP_AUTHORIZATION="Token {}".format(self.token_other_user))
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_other_user))
         data = response.data
         self.assertEqual(len(data), AssetMake.objects.count())
         self.assertIn(self.asset_make.make_label, list(data[0].values()))
@@ -69,14 +70,14 @@ class AssetMakeAPICase(TestCase):
         mock_verify_id_token.return_value = {'email': self.user.email}
         response = client.post(
             self.asset_make_urls,
-            data={"make_label": self.invalid_asset_make,
-                  "asset_type": self.asset_type.id
+            data={'make_label': self.invalid_asset_make,
+                  'asset_type': self.asset_type.id
                   },
-            HTTP_AUTHORIZATION="Token {}".format(self.token_user)
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user)
         )
         response_data = response.data
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response_data["make_label"],
+        self.assertEqual(response_data['make_label'],
                          ['This field may not be blank.'])
 
     @patch('api.authentication.auth.verify_id_token')
@@ -85,14 +86,14 @@ class AssetMakeAPICase(TestCase):
         mock_verify_id_token.return_value = {'email': self.user.email}
         response = client.post(
             self.asset_make_urls,
-            data={"make_label": "Huawei Honor",
-                  "asset_type": self.invalid_asset_type
+            data={'make_label': 'Huawei Honor',
+                  'asset_type': self.invalid_asset_type
                   },
-            HTTP_AUTHORIZATION="Token {}".format(self.token_user)
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user)
         )
         response_data = response.data
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response_data["asset_type"],
+        self.assertEqual(response_data['asset_type'],
                          ['Invalid pk "{0}" - object does not exist.'
                          .format(self.invalid_asset_type)])
 
@@ -102,30 +103,15 @@ class AssetMakeAPICase(TestCase):
         mock_verify_id_token.return_value = {'email': self.user.email}
         response = client.post(
             self.asset_make_urls,
-            data={"make_label": "Huawei Honor",
-                  "asset_type": self.blank_asset_type
+            data={'make_label': 'Huawei Honor',
+                  'asset_type': self.blank_asset_type
                   },
-            HTTP_AUTHORIZATION="Token {}".format(self.token_user)
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user)
         )
         response_data = response.data
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response_data["asset_type"],
+        self.assertEqual(response_data['asset_type'],
                          ['This field is required.'])
-
-    @patch('api.authentication.auth.verify_id_token')
-    def test_asset_make_endpoint_post_invalid_make(self, mock_verify_id_token):
-        mock_verify_id_token.return_value = {'email': self.user.email}
-        response = client.post(
-            self.asset_make_urls,
-            data={"make_label": "2383Honor",
-                  "asset_type": self.asset_type.id
-                  },
-            HTTP_AUTHORIZATION="Token {}".format(self.token_user)
-        )
-        response_data = response.data
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response_data["make_label"],
-                         ["make label should only start with alphabet"])
 
     @patch('api.authentication.auth.verify_id_token')
     def test_asset_make_endpoint_post_valid_data(self, mock_verify_id_token):
@@ -134,13 +120,13 @@ class AssetMakeAPICase(TestCase):
         response = client.post(
             self.asset_make_urls,
             data=self.second_asset_make,
-            HTTP_AUTHORIZATION="Token {}".format(self.token_user)
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user)
         )
         latest_asset_makes = AssetMake.objects.all()
         self.assertEqual(response.status_code, 201)
         response_data = response.data
         self.assertEqual(len(latest_asset_makes), initial_asset_makes + 1)
-        self.assertIn(self.second_asset_make["make_label"],
+        self.assertIn(self.second_asset_make['make_label'],
                       response_data.values())
 
     @patch('api.authentication.auth.verify_id_token')
@@ -148,19 +134,20 @@ class AssetMakeAPICase(TestCase):
         mock_verify_id_token.return_value = {'email': self.user.email}
         response = client.put(
             '{}{}/'.format(self.asset_make_urls, self.asset_make.id),
-            HTTP_AUTHORIZATION="Token {}".format(self.token_user))
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user))
         self.assertEqual(response.data, {
             'detail': 'Method "PUT" not allowed.'
         })
+        self.assertEqual(response.status_code, 405)
 
     @patch('api.authentication.auth.verify_id_token')
     def test_can_get_single_asset_make(self, mock_verify_token):
         mock_verify_token.return_value = {'email': self.user.email}
         response = client.get(
-            f"{self.asset_make_urls}{self.asset_make.id}/",
-            HTTP_AUTHORIZATION="Token {}".format(self.token_user))
+            f'{self.asset_make_urls}{self.asset_make.id}/',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user))
 
-        self.assertIn("make_label", response.data.keys())
+        self.assertIn('make_label', response.data.keys())
         self.assertIn(self.asset_make.make_label,
                       response.data.values())
         self.assertEqual(response.status_code, 200)
@@ -173,7 +160,7 @@ class AssetMakeAPICase(TestCase):
         response = client.put(
             self.asset_make_urls,
             data=data,
-            HTTP_AUTHORIZATION="Token {}".format(self.token_user))
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user))
         self.assertEqual(response.data, {
             'detail': 'Method "PUT" not allowed.'
         })
@@ -187,7 +174,7 @@ class AssetMakeAPICase(TestCase):
         response = client.patch(
             self.asset_make_urls,
             data=data,
-            HTTP_AUTHORIZATION="Token {}".format(self.token_user))
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user))
         self.assertEqual(response.data, {
             'detail': 'Method "PATCH" not allowed.'
         })
@@ -201,7 +188,7 @@ class AssetMakeAPICase(TestCase):
         response = client.delete(
             self.asset_make_urls,
             data=data,
-            HTTP_AUTHORIZATION="Token {}".format(self.token_user))
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user))
         self.assertEqual(response.data, {
             'detail': 'Method "DELETE" not allowed.'
         })
