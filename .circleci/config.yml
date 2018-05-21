@@ -59,3 +59,10 @@ jobs:
           name: run coveralls
           command: |
             pipenv run "coveralls"
+
+
+
+# to-do's
+# modify file to add deploy job which calls deploys script in scripts folder
+# modify to use &defaults to avoid repetetion.
+# set the workflow at the bottom

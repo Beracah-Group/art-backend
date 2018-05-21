@@ -14,7 +14,6 @@ import os
 from decouple import config, Csv
 import dj_database_url
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__)))
@@ -33,15 +32,14 @@ STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = config('SECRET_KEY')
+#SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY="mc$hxbiz7xu6s-_=15#m2e5h=dppw)j1*q_w4pq-qme&o2=ywa"
 
 DATABASES = {'default': dj_database_url.config()}
 
 # Application definition
 
 INSTALLED_APPS = [
-    'jet',
-    'jet.dashboard',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,10 +47,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'core',
     'api',
+    'core',
     'oauth2_provider',
     'rest_framework_swagger'
+    'jet',
+    'jet.dashboard'
 ]
 
 AUTH_USER_MODEL = 'core.User'
@@ -190,3 +190,14 @@ LOGGING = {
 csv = Csv(cast=lambda s: tuple(s.split(':')))
 
 ADMINS = csv(os.environ.get('ADMINS', ''))
+
+from django.core.exceptions import ImproperlyConfigured
+
+def get_env_variable(var_name):
+    try:
+        return os.environ[var_name]
+    except KeyError:
+        error_msg = "Set the %s environment variable" % var_name
+        raise ImproperlyConfigured(error_msg)
+
+SECRET_KEY="mc$hxbiz7xu6s-_=15#m2e5h=dppw)j1*q_w4pq-qme&o2=ywa"
